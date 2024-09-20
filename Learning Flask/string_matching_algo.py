@@ -6,7 +6,8 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from Levenshtein import distance as levenshtein_distance  # Make sure to install python-Levenshtein
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 import re
 def search_reliancedigital(product_name):
     chrome_options = Options()
@@ -87,30 +88,38 @@ def search_reliancedigital(product_name):
     finally:
         driver.quit()
 
-# Function to clean and normalize text (remove stopwords and special characters)
+# Function to clean and normalize text (remove special characters, lowercase, etc.)
 def normalize(text):
-    # Convert text to lowercase
     text = text.lower()
-    # Remove special characters and extra spaces
-    text = re.sub(r'[^\w\s]', '', text)
+    text = re.sub(r'[^\w\s]', '', text)  # Remove special characters
     return text.strip()
 
-# Modified function with normalization and improved matching
-def find_best_match(product_list, search_query):
+# Function to find the best match using TF-IDF and Cosine Similarity
+def find_best_match_tfidf(product_list, search_query):
+    # Normalize search query and product titles
     search_query = normalize(search_query)
-    best_match = None
-    highest_score = float('inf')  # Initialize with a high value
+    product_titles = [normalize(product['title']) for product in product_list]
 
-    for product in product_list:
-        product_title = normalize(product['title'])
-        # Calculate the Levenshtein distance
-        distance = levenshtein_distance(search_query, product_title)
+    # Combine the search query with product titles for vectorization
+    documents = [search_query] + product_titles
 
-        # Find the product with the smallest distance (best match)
-        if distance < highest_score:
-            highest_score = distance
-            best_match = product
+    # Initialize the TF-IDF Vectorizer
+    vectorizer = TfidfVectorizer()
 
-    return best_match
+    # Fit and transform the documents into a TF-IDF matrix
+    tfidf_matrix = vectorizer.fit_transform(documents)
 
-print(find_best_match(search_reliancedigital("Apple iphone 13 128GB Midnight"),"Apple iphone 13 128GB Midnight"))
+    # Calculate Cosine Similarity between the search query and all product titles
+    cosine_similarities = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:]).flatten()
+
+    # Find the index of the highest similarity score
+    best_match_index = cosine_similarities.argmax()
+
+    # Return the product with the highest cosine similarity
+    return product_list[best_match_index]
+
+# Example usage with search query and product data
+product_list = search_reliancedigital("Apple iphone 13 128GB Midnight")
+best_product = find_best_match_tfidf(product_list, "Apple iphone 13 128GB Midnight")
+
+print("Best Match:", best_product)
