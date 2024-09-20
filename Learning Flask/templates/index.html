@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Likenings</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="hidden">
+        <p>Loading, please wait...</p>
+        <div class="loader">
+            <section class="dots-container">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <form id="search-form">
+            <select id="brand" name="brand">
+                <option value="">Select Brand</option>
+                <option value="Apple">Apple</option>
+                <option value="OnePlus">OnePlus</option>
+                <option value="Samsung">Samsung</option>
+                <option value="Nothing">Nothing</option>
+                <option value="Motorola">Motorola</option>
+                
+                
+                <!-- Add more options as needed -->
+            </select>
+            <br><br>
+
+            <select id="model" name="model" disabled>
+                <option value="">Select Model</option>
+            </select>
+            <br><br>
+
+            <select id="variant" name="variant" disabled>
+                <option value="">Select Variant</option>
+            </select>
+            <br><br>
+            <button type="submit">Search</button>
+            <button type="button" id="clear-all" class="clearall-btn">Clear all</button>
+        </form>
+    </main>
+    <div class="parent-container">
+    <!-- Carousel Container - Initially hidden -->
+<div id="carousel-container" class="carousel-container hidden">
+    <!-- Carousel Items -->
+    <div id="carousel-items" class="carousel-items"></div>
+    
+    <!-- Dropdown for on-the-go variant selection -->
+    <div class="variant-selection">
+        <label for="variant-dropdown">Select Variant:</label>
+        <select id="variant-dropdown"></select>
+        <button id="variant-search-btn">Search</button>
+    </div>
+
+    <!-- Navigation Controls -->
+    <button id="carousel-prev" class="carousel-control">‹</button>
+    <button id="carousel-next" class="carousel-control">›</button>
+
+    <!-- Pagination Dots -->
+    <div id="carousel-indicators"></div>
+    <div class="dashed-line"></div>
+    <div class="product-specification">
+        <p>About item</p>
+        <div class="product-ul">
+            <ul>
+                <!-- The list items will be dynamically inserted here -->
+            </ul>
+        </div>
+    </div>
+
+</div>
+
+    <!-- Results Container -->
+    <div id="results" class="results-container"></div>
+</div>
+    <script>
+    let images = [];  // Global variable to store images
+let currentIndex = 0;
+
+// Function to update the variant dropdown with the available variants
+function updateVariantDropdown(variants) {
+    const variantDropdown = $('#variant-dropdown');
+    variantDropdown.empty();  // Clear the current options
+
+    variants.forEach(variant => {
+        const variantText = `${variant.storage_type} ${variant.color}`;
+        variantDropdown.append(`<option value="${variantText}">${variantText}</option>`);
+    });
+}
+
+
+
+function updateCarousel(newImages) {
+    const carouselItemsContainer = $('#carousel-items');
+    const carouselIndicators = $('#carousel-indicators');
+
+    if (!Array.isArray(newImages)) {
+        console.error("Images parameter is not an array:", newImages);
+        return;
+    }
+
+    images = newImages; // Update the global images array
+    currentIndex = 0; // Reset the current index when updating
+
+    carouselItemsContainer.empty(); // Clear the current carousel items
+    carouselIndicators.empty(); // Clear the current indicators
+
+    newImages.forEach((imageSrc, index) => {
+        const activeClass = index === 0 ? 'active' : ''; // Set the first image as active
+        carouselItemsContainer.append(`
+            <div class="carousel-item ${activeClass}">
+                <img src="${imageSrc}" alt="Product Image ${index + 1}">
+            </div>
+        `);
+        carouselIndicators.append(`
+            <span data-slide="${index}" class="${activeClass}"></span>
+        `);
+    });
+
+    $('#carousel-container').removeClass('hidden'); // Show the carousel container
+    updateCarouselDisplay(); // Update the carousel display with the first image
+}
+
+function updateCarouselDisplay() {
+    // Hide all carousel items
+    $('.carousel-item').hide(); 
+
+    // Show only the current image in the carousel
+    $('.carousel-item').eq(currentIndex).show().addClass('active');
+
+    // Update the active indicator
+    $('#carousel-indicators span').removeClass('active').eq(currentIndex).addClass('active');
+}
+
+// Event Listeners for Carousel Controls
+$('#carousel-prev').on('click', function() {
+    currentIndex = (currentIndex > 0) ? currentIndex - 1 : images.length - 1;
+    updateCarouselDisplay();
+});
+
+$('#carousel-next').on('click', function() {
+    currentIndex = (currentIndex < images.length - 1) ? currentIndex + 1 : 0;
+    updateCarouselDisplay();
+});
+
+// Event Listener for Pagination Dots
+$('#carousel-indicators').on('click', 'span', function() {
+    currentIndex = $(this).data('slide');
+    updateCarouselDisplay();
+});
+
+
+        function showLoadingScreen() {
+            document.getElementById('loading-screen').classList.remove('hidden');
+            document.getElementById('loading-screen').style.display = 'block';
+            document.getElementById('main-content').style.display = 'none';
+        }
+
+        // Hide loading screen function
+        function hideLoadingScreen() {
+            document.getElementById('loading-screen').classList.add('hidden');
+            document.getElementById('loading-screen').style.display = 'none';
+            document.getElementById('main-content').style.display = 'block';
+        }
+
+
+        // Function to update the product specifications dynamically
+function updateProductSpecifications(aboutItems) {
+    const productUL = $('.product-ul ul');
+
+    if (!Array.isArray(aboutItems)) {
+        console.error("aboutItems parameter is not an array:", aboutItems);
+        return;
+    }
+
+    productUL.empty();  // Clear the current list items
+
+    // Add new list items based on the received data
+    aboutItems.forEach((itemText) => {
+        const listItem = `<div class="product-li "><li>${itemText}</li></div>`;
+        productUL.append(listItem);
+    });
+}
+
+// Function to update the result cards based on the response data
+function updateResults(response) {
+    let html = "";
+    const logos = {
+        'flipkart': "/static/Logos/flipkart.png",
+        'amazon': "/static/Logos/amazon.png",
+        'reliancedigital': "/static/Logos/reliancedigital.png",
+        'croma': "/static/Logos/croma.png",
+        'vijaysales': "/static/Logos/vijaysales.png"
+    };
+
+    // Platforms to iterate over (excluding 'images')
+    const productPlatforms = ['flipkart', 'amazon', 'reliancedigital', 'croma', 'vijaysales'];
+    
+    // Iterate through each platform to generate the result cards
+    productPlatforms.forEach(function(platform) {
+        const data = response[platform];
+
+        if (data) { // Check if the data for the platform exists
+            const logoUrl = logos[platform] || "/static/Logos/vijaysales.png";
+
+            html += 
+                `<div class="results-container">
+                    <div class="result-card reveal">
+                        <div class="platform-header">
+                            <img src="${logoUrl}" alt="${platform} Logo" class="platform-logo">
+                            <h2>${data.platform}</h2>
+                        </div>
+                        <p>Name: ${data.name || "Not Available"}</p>
+                        <p>Price: ${data.price || "Not Available"}</p>
+                        <p>Discount: ${data.discount || "Not Available"}</p>
+                        <p>Offers: ${data.offers || "Not Available"}</p>
+                        <p>Ratings: ${data.ratings || "Not Available"}</p>
+                        <div class="button-wrapper">
+                            <a href="${data.url}" target="_blank">
+                                <button class="view-product-button">View Product</button>
+                            </a>
+                        </div>
+                    </div>
+                </div>`;
+        }
+    });
+
+    // Update the results container with the newly generated HTML
+    $('#results').html(html);
+
+    // Optionally update the background image when results are displayed
+    $('body').css('background', 'url(/static/Logos/default-background.png) no-repeat center center fixed');
+    $('body').css('background-size', 'cover');
+
+    // If variants are provided in the response, update the variant dropdown
+    if (response.variants && response.variants.length > 0) {
+        updateVariantDropdown(response.variants);
+    }
+}
+
+
+
+        $(document).ready(function() {
+
+            
+
+
+            $('#brand').change(function() {
+        currentBrand = $(this).val();  // Update the global variable when a brand is selected
+        if (currentBrand) {
+            $.ajax({
+                url: '/get-models',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ brand: currentBrand }),
+                success: function(models) {
+                    $('#model').empty().append('<option value="">Select Model</option>');
+                    models.forEach(function(model) {
+                        $('#model').append(`<option value="${model}">${model}</option>`);
+                    });
+                    $('#model').prop('disabled', false);
+                }
+            });
+        } else {
+            $('#model').empty().append('<option value="">Select Model</option>').prop('disabled', true);
+            $('#variant').empty().append('<option value="">Select Variant</option>').prop('disabled', true);
+        }
+    });
+
+
+    $('#model').change(function() {
+        currentModel = $(this).val();  // Update the global variable when a model is selected
+        const brand = currentBrand;  // Use the global brand variable
+        if (currentModel) {
+            $.ajax({
+                url: '/get-variants',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ brand: brand, model: currentModel }),
+                success: function(variants) {
+                    $('#variant').empty().append('<option value="">Select Variant</option>');
+                    variants.forEach(function(variant) {
+                        const variantText = `${variant.storage_type} ${variant.color}`;
+                        $('#variant').append(`<option value="${variantText}">${variantText}</option>`);
+                    });
+                    $('#variant').prop('disabled', false);
+                }
+            });
+        } else {
+            $('#variant').empty().append('<option value="">Select Variant</option>').prop('disabled', true);
+        }
+    });
+
+    $('#variant-search-btn').on('click', function() {
+    let selectedVariant = $('#variant-dropdown').val();
+    showLoadingScreen();
+    console.log("Selected variant before trim:", selectedVariant);  // Debugging log
+
+    if (!selectedVariant) {
+        console.error("No variant selected");
+        return;
+    }
+
+    // Trim leading/trailing spaces from the selected variant
+    selectedVariant = selectedVariant.trim();
+    console.log("Selected variant after trim:", selectedVariant);  // Debugging log
+
+    const variantParts = selectedVariant.split(' ');
+    console.log("Variant parts:", variantParts);  // Debugging log
+
+    let storage_type = "";
+    let color = "";
+
+    // Handle variants based on the number of parts
+    if (variantParts.length === 2) {
+        // For variants like '128GB Midnight'
+        storage_type = variantParts[0];
+        color = variantParts[1];
+    } else if (variantParts.length === 3) {
+        // For variants like '6GB 128GB Orange'
+        storage_type = variantParts[0] + " " + variantParts[1];
+        color = variantParts[2];  // The third part is the color
+    } else if (variantParts.length === 4) {
+        // For variants like '8GB 128GB Cool Blue'
+        storage_type = variantParts[0] + " " + variantParts[1];
+        color = variantParts[2] + " " + variantParts[3];
+    } else {
+        console.error("Invalid variant format, parts length:", variantParts.length);
+        return;
+    }
+
+    console.log("Parsed storage_type:", storage_type);
+    console.log("Parsed color:", color);
+    console.log("Sending data to server:", {
+        brand: brand,
+        model: model,
+        storage_type: storage_type,
+        color: color
+    });
+
+    // Send a new request to search with the updated variant
+    $.ajax({
+        url: '/search',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({
+            brand: currentBrand,  // Use the stored brand
+            model: currentModel,  // Use the stored model
+            storage_type: storage_type.trim(),
+            color: color.trim()
+        }),
+        success: function(response) {
+            // Handle the response as before
+            if (response.images && response.images.length > 0) {
+                updateCarousel(response.images);
+            }
+
+            updateResults(response);
+            hideLoadingScreen();
+
+            if (response['about-item']) {
+                updateProductSpecifications(response['about-item']);
+            }
+        },
+        error: function(error) {
+            console.error("Error fetching variant data", error);
+        }
+    });
+});
+
+
+
+
+
+        
+
+
+        $('#search-form').submit(function(event) {
+            event.preventDefault();
+            showLoadingScreen(); // Show the loading screen on form submission
+            
+            const brand = $('#brand').val();
+            const model = $('#model').val();
+            const variant = $('#variant').val();
+
+            const colorPattern = /Starlight|White|Black|Blue|Pink|Cool|Red|Yellow|Glacial|Grey|Iron|Titanium|Luxe|Midnight|Orange/i;
+            const colorMatch = variant.match(colorPattern);
+
+            let storage_type = "";
+            let color = "";
+
+            if (colorMatch) {
+                const colorIndex = variant.indexOf(colorMatch[0]);
+                storage_type = variant.substring(0, colorIndex).trim();
+                color = variant.substring(colorIndex).trim();
+            } else {
+                storage_type = variant;
+                color = "";
+            }
+
+            $.ajax({
+                url: '/search',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    brand: brand,
+                    model: model,
+                    storage_type: storage_type,
+                    color: color
+                }),
+                success: function(response) {
+                    console.log("Response received from server:", response);
+                    
+                    const aboutItems = response['about-item'];
+            updateProductSpecifications(aboutItems);  // Update the unordered list
+
+                    hideLoadingScreen(); // Hide the loading screen when data is received
+                    
+                    if (response.images && response.images.length > 0) {
+                        updateCarousel(response.images);
+                    }
+
+                    let html = "";
+                    const logos = {
+                        'flipkart': "/static/Logos/flipkart.png",
+                        'amazon': "/static/Logos/amazon.png",
+                        'reliancedigital': "/static/Logos/reliancedigital.png",
+                        'croma': "/static/Logos/croma.png",
+                        'vijaysales': "/static/Logos/vijaysales.png"
+                    };
+
+                    // Exclude the 'images' key from iterating
+                    const productPlatforms = ['flipkart', 'amazon', 'reliancedigital', 'croma', 'vijaysales'];
+                    
+                    productPlatforms.forEach(function(platform) {
+                        const data = response[platform];
+
+                        if (data) { // Check if the data for the platform exists
+                            const logoUrl = logos[platform] || "/static/Logos/vijaysales.png";
+
+                            html += 
+                                `<div class="results-container">
+                                    <div class="result-card reveal">
+                                        <div class="platform-header">
+                                            <img src="${logoUrl}" alt="${platform} Logo" class="platform-logo">
+                                            <h2>${data.platform}</h2>
+                                        </div>
+                                        <p>Name: ${data.name || "Not Available"}</p>
+                                        <p>Price: ${data.price || "Not Available"}</p>
+                                        <p>Discount: ${data.discount || "Not Available"}</p>
+                                        <p>Offers: ${data.offers || "Not Available"}</p>
+                                        <p>Ratings: ${data.ratings || "Not Available"}</p>
+                                        <div class="button-wrapper">
+                                            <a href="${data.url}" target="_blank">
+                                                <button class="view-product-button">View Product</button>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>`;
+                        }
+                    });
+
+
+    
+
+                    $('#results').html(html);
+
+                    // Update background image
+                    $('body').css('background', 'url(/static/Logos/default-background.png) no-repeat center center fixed');
+                    $('body').css('background-size', 'cover');
+
+                    $('#search-form').hide(); // Optionally hide the form
+                    
+                    if (response.variants && response.variants.length > 0) {
+                updateVariantDropdown(response.variants);
+            }
+                },
+                error: function(error) {
+                    console.log("Error received from server:", error);
+                    hideLoadingScreen(); // Hide the loading screen even if an error occurs
+                    $('#results').html(`<p>Error: ${error.responseJSON.error}</p>`);
+                }
+            });
+        });
+
+        // Clear form fields when the 'Clear All' button is clicked
+    $('#clear-all').click(function() {
+        $('#brand').val('');
+        $('#model').empty().append('<option value="">Select Model</option>').prop('disabled', true);
+        $('#variant').empty().append('<option value="">Select Variant</option>').prop('disabled', true);
+    });
+
+    });
+
+    window.addEventListener('scroll', reveal);
+
+    function reveal(){
+        var reveals = document.querySelectorAll('.reveal');
+
+        for(var i=0; i < reveals.length; i++){
+            var windowheight = window.innerHeight;
+            var revealtop = reveals[i].getBoundingClientRect().top;
+            var revealpoint = 150;
+
+            if(revealtop < windowheight - revealpoint ){
+                reveals[i].classList.add('active');
+            } else {
+                reveals[i].classList.remove('active');
+            }
+        }
+    }
+
+    </script>
+</body>
+</html>

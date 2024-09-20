@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Image Carousel</title>
+    <style>
+        /* Carousel Container */
+        .carousel-container {
+            position: relative;
+            width: 80%;
+            max-width: 600px;
+            margin: auto;
+            overflow: hidden;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: rgb(255, 255, 255);
+    
+    border-radius: 28px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Carousel Items */
+        .carousel-items {
+            display: flex;
+            transition: transform 0.5s ease;
+        }
+
+        /* Individual Item */
+        .carousel-item {
+            min-width: 100%;
+            box-sizing: border-box;
+
+
+        }
+
+        /* Image Style */
+        .carousel-item img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        /* Navigation Buttons */
+        .carousel-control {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            padding: 5px;
+            cursor: pointer;
+            border-radius: 50%;
+            z-index: 1000;
+        }
+
+        #carousel-prev {
+            height: 30px;
+            width: 30px;
+            left: 15px; /* Position the left button inside the image area */
+        }
+
+        #carousel-next {
+            height: 30px;
+            width: 30px;
+            right: 15px; /* Position the right button inside the image area */
+        }
+
+        /* Pagination Dots */
+        .carousel-indicators {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            justify-content: center;
+            z-index: 1000;
+            
+        }
+
+        .carousel-indicators span {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            margin: 5px;
+            background-color: #ccc;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .carousel-indicators .active {
+            background-color: #333;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Carousel Container -->
+    <div class="carousel-container">
+        <!-- Carousel Items -->
+        <div id="carousel-items" class="carousel-items">
+            <div class="carousel-item">
+                <img src="https://m.media-amazon.com/images/I/61l9ppRIiqL._SX522_.jpg" alt="Product Image 1">
+            </div>
+            <div class="carousel-item">
+                <img src="https://m.media-amazon.com/images/I/61iTWldZ9qL._SX522_.jpg" alt="Product Image 2">
+            </div>
+            <div class="carousel-item">
+                <img src="https://m.media-amazon.com/images/I/71uNkgYrWcL._SX522_.jpg" alt="Product Image 3">
+            </div>
+        </div>
+        
+        <!-- Navigation Controls -->
+        <button id="carousel-prev" class="carousel-control">‹</button>
+        <button id="carousel-next" class="carousel-control">›</button>
+
+        <!-- Pagination Dots -->
+        <div class="carousel-indicators">
+            <span data-slide="0" class="active"></span>
+            <span data-slide="1"></span>
+            <span data-slide="2"></span>
+        </div>
+    </div>
+
+    <script>
+        let currentIndex = 0;
+        const items = document.querySelectorAll('.carousel-item');
+        const itemCount = items.length;
+        const indicators = document.querySelectorAll('.carousel-indicators span');
+
+        document.getElementById('carousel-prev').addEventListener('click', function() {
+            currentIndex = (currentIndex === 0) ? itemCount - 1 : currentIndex - 1;
+            updateCarousel();
+        });
+
+        document.getElementById('carousel-next').addEventListener('click', function() {
+            currentIndex = (currentIndex === itemCount - 1) ? 0 : currentIndex + 1;
+            updateCarousel();
+        });
+
+        indicators.forEach(function(indicator, index) {
+            indicator.addEventListener('click', function() {
+                currentIndex = index;
+                updateCarousel();
+            });
+        });
+
+        function updateCarousel() {
+            const carouselItems = document.getElementById('carousel-items');
+            const offset = -currentIndex * 100;
+            carouselItems.style.transform = `translateX(${offset}%)`;
+
+            // Update active indicator
+            indicators.forEach(function(indicator, index) {
+                indicator.classList.toggle('active', index === currentIndex);
+            });
+        }
+    </script>
+
+</body>
+</html>

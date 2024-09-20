@@ -1,0 +1,450 @@
+body {
+    font-family: 'Roboto', sans-serif;
+    background: url('/static/Logos/Likenings Hero.png') no-repeat center center fixed;
+    background-size: cover;
+    margin: 0;
+    padding: 0;
+    color: #333;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+
+main {
+    display: flex;
+    padding-top: 160px;
+    padding-left: 830px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    
+}
+
+form {
+    padding-right: 125px;
+    padding-top: 55px;
+    padding-bottom: 80px;
+    padding-left: 125px;
+    border-radius: 18px;
+}
+
+form label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+form select {
+    width: 400px;
+    height: 65px;
+    padding: 10px;
+    border: 2px solid #EFAF00;
+    border-radius: 15px;
+    background-color: #F4F1ED;
+    color: #000000;
+    appearance: none;
+    position: relative;
+    font-size: 20px;
+    margin-bottom: 40px;
+    transition: all 0.3s;
+    cursor: pointer;
+}
+
+form select:hover {
+    background-color: #EFAF00;
+    color: #FFFFFF;
+}
+
+form select:focus {
+    outline: none;
+    border-color: #EFAF00;
+    box-shadow: 0 0 10px rgba(239, 175, 0, 0.5);
+}
+
+form select option {
+    background-color: #F4F1ED;  /* Option background color */
+    color: #000000;            /* Option text color */
+    padding: 8px;               /* Option padding */
+    text-align: center;         /* Option text alignment */
+    cursor: pointer;
+    transition: background-color 0.3s ease; /* Smooth transition */
+}
+
+form select option:hover {
+    background-color: #EFAF00;
+    color: #FFFFFF;
+}
+
+form button {
+    background-color: #EFAF00;
+    color: #FFFFFF;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s;
+    height: 50px;
+    width: 100px;
+    margin-left: 70px;
+}
+
+.clearall-btn {
+    background-color: #EFAF00;
+    color: #FFFFFF;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s;
+    height: 50px;
+    width: 100px;
+    margin-left: 70px;
+}
+
+form button:hover {
+    background-color: #F4F1ED;
+    color: #EFAF00;
+}
+
+.clearall-btn:hover {
+    background-color: #F4F1ED;
+    color: rgba(235, 55, 55, 0.5);
+}
+
+form button:focus {
+    outline: none;
+    box-shadow: 0 0 10px rgba(239, 175, 0, 0.5);
+}
+
+.clearall-btn:focus {
+    outline: none;
+    box-shadow: 0 0 10px rgba(234, 58, 58, 0.5);
+}
+
+
+
+
+
+.platform-header {
+    display: flex;
+    align-items: center;
+}
+
+.platform-logo {
+    margin-right: 10px;
+    width: 50px;
+    height: auto;
+}
+
+.view-product-button {
+    background-color: #EFAF00;
+    color: white; 
+    padding: 12px 24px;
+    
+    border: none;
+    border-radius: 11px;
+    cursor: pointer;
+    font-size: 16px;
+    
+    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+    box-sizing: border-box;
+}
+
+.view-product-button:hover {
+    background-color: #000000;
+    color: white;
+}
+
+.view-product-button:focus {
+    outline: none;
+    box-shadow: 0 0 10px rgba(239, 175, 0, 0.5);
+}
+
+.button-wrapper {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+}
+
+.result-card p {
+    font-size: 21px; /* Adjust this value to change text size */
+}
+
+
+
+/* Add this CSS to ensure the loading screen is hidden by default */
+/* Ensure this CSS is applied to hide the loading screen initially */
+.hidden {
+    display: none;
+}
+
+#loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    text-align: center;
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    display: none; /* Hidden by default */
+}
+.dots-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+  }
+  
+  .dot {
+    height: 20px;
+    width: 20px;
+    margin-right: 10px;
+    border-radius: 10px;
+    background-color: #EFAF00;
+    animation: pulse 1.5s infinite ease-in-out;
+  }
+  
+  .dot:last-child {
+    margin-right: 0;
+  }
+  
+  .dot:nth-child(1) {
+    animation-delay: -0.3s;
+  }
+  
+  .dot:nth-child(2) {
+    animation-delay: -0.1s;
+  }
+  
+  .dot:nth-child(3) {
+    animation-delay: 0.1s;
+  }
+  
+  @keyframes pulse {
+    0% {
+      transform: scale(0.8);
+      background-color: #EFAF00;
+      box-shadow: 0 0 0 0 #d8c287;
+    }
+  
+    50% {
+      transform: scale(1.2);
+      background-color: #ebe2c9;
+      box-shadow: 0 0 0 10px rgba(178, 212, 252, 0);
+    }
+  
+    100% {
+      transform: scale(0.8);
+      background-color: #EFAF00;
+      box-shadow: 0 0 0 0 #ffd664;
+    }
+  }
+  
+  .loader{
+    padding: 400px;
+  }
+
+
+
+  /* Parent container */
+  .parent-container {
+    display: flex;
+    padding: 20px; /* Padding around the container */
+    gap: 20px; /* Padding between the carousel and the results container */
+    height: 100vh; /* Full viewport height */
+    overflow-y: auto;
+}
+
+.results-container {
+    flex: 1; /* Take up remaining space */
+    margin-left: 40px; /* Space for the fixed carousel */
+    top: 0px;
+    
+    padding: 20px; /* Padding inside the results container */
+     /* Include padding in width calculations */
+}
+
+.result-card {
+    background: rgb(255, 255, 255);
+    padding: 20px;
+    padding-bottom: 80px;
+    border-radius: 28px;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
+    max-height: 400px;
+    box-sizing: border-box;
+
+    position: relative;
+    margin: 10px; /* Add margin to avoid overlapping */
+}
+  /* Carousel Container */
+  .carousel-container {
+    position: sticky; /* Sticky position for the carousel */
+    left: 50px; /* Space from the left edge */
+    top: 0px; /* Space from the top edge */
+    width: 600px; /* Fixed width */
+    height: auto; /* Adjust height automatically based on content */
+    border: 1px solid #ddd;
+     /* Enable vertical scrolling */
+     /* Prevent horizontal scrolling */
+    overflow-y: scroll;
+    border-radius: 30px;
+    background: rgb(255, 255, 255);
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
+    z-index: 10; /* Ensure it stays above other content */
+}
+
+.carousel-container::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+}
+
+/* Carousel Items */
+.carousel-items {
+    display: flex;
+    transition: transform 0.5s ease-in-out; /* Smooth transition */
+}
+
+/* Active Carousel Item */
+.carousel-item.active {
+    display: block;
+    opacity: 1;
+}
+
+/* Individual Item */
+.carousel-item {
+    min-width: 100%;
+    box-sizing: border-box;
+    transition: opacity 0.5s ease-in-out; /* Smooth fade-in effect */
+    opacity: 0;
+    display: none; /* Hide all items initially */
+
+}
+
+/* Image Style */
+.carousel-item img {
+    width: 100%;
+    height: auto;
+    border-radius: 30px;
+}
+
+/* Navigation Buttons */
+.carousel-control {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: none;
+    padding: 5px;
+    cursor: pointer;
+    border-radius: 50%;
+    z-index: 1000;
+}
+
+#carousel-prev {
+    height: 30px;
+    width: 30px;
+    left: 30px; /* Position the left button inside the image area */
+}
+
+#carousel-next {
+    height: 30px;
+    width: 30px;
+    right: 30px; /* Position the right button inside the image area */
+}
+
+/* Pagination Dots */
+.carousel-indicators {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    justify-content: center;
+    z-index: 1000;
+    
+}
+
+.carousel-indicators span {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    margin: 5px;
+    background-color: #ccc;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.carousel-indicators .active {
+    background-color: #333;
+}
+
+
+.dashed-line {
+    width: 100%; 
+    height: 1.7px; /* Or desired height */
+    background-image: repeating-linear-gradient(
+      to right,
+      rgb(128, 128, 128), /* Dash color */
+      rgb(128, 128, 128) 10px, /* Dash length */
+      transparent 17px, /* Gap between dashes */
+      transparent 20px /* Total pattern length (dash + gap) */
+    );
+  }
+
+  .product-specification{
+    
+    font-weight: 500;
+  }
+
+  .product-specification p{
+    font-weight: bolder;
+    padding-left: 22px;
+    padding-top: 20px;
+    font-size: large;
+  }
+
+.product-li{
+   
+    padding-left: 5px;
+    padding-bottom: 3px;
+    padding-top: 5px;
+    padding-right: 5px;
+    font-size: 17.5px;
+}
+
+.product-ul{
+    padding-right: 9px;
+}
+
+ul li {
+    line-height: 2.2;
+}
+
+.staggered-animation {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+
+.staggered-animation.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.staggered-animation.visible:nth-child(1) { transition-delay: 0.1s; }
+.staggered-animation.visible:nth-child(2) { transition-delay: 0.2s; }
+.staggered-animation.visible:nth-child(3) { transition-delay: 0.3s; }
+/* And so on */
+
