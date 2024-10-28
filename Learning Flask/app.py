@@ -169,7 +169,7 @@ async def get_scraped_data(unique_key, query):
     # If not in cache, scrape data
     scraped_data = scrape_data(query)
     # Cache the scraped data
-    redis_client.set(unique_key, json.dumps(scraped_data), ex=3500)  # Cache for 30 seconds
+    redis_client.set(unique_key, json.dumps(scraped_data), ex=10000)  # Cache for 30 seconds
     return scraped_data
 
 @app.route('/')

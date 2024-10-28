@@ -9,6 +9,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import re
+
+#Scaraping from Reliance Digital
 def search_reliancedigital(product_name):
     chrome_options = Options()
     chrome_options.add_argument("--headless")
@@ -123,3 +125,160 @@ product_list = search_reliancedigital("Apple iphone 13 128GB Midnight")
 best_product = find_best_match_tfidf(product_list, "Apple iphone 13 128GB Midnight")
 
 print("Best Match:", best_product)
+
+
+# Scraping from Vijay Sales
+def search_vijaysales(query):
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+
+    service = Service("C:/Users/Rajan/OneDrive/Desktop/Likenings Project/chromedriver.exe")
+    driver = webdriver.Chrome(service=service, options=chrome_options)
+
+    url = f"https://www.vijaysales.com/search/{query}"
+    driver.get(url)
+    time.sleep(5)  # Allow the page to load
+
+    products = []  # To store all product data
+
+    try:
+        # Scrape the top 10-15 products
+        product_elems = driver.find_elements(By.CSS_SELECTOR, "div.BcktPrd")[:15]  # Limit to top 15
+
+        for product_elem in product_elems:
+            product_data = {}
+            try:
+                # Product title
+                name_elem = product_elem.find_element(By.CSS_SELECTOR, "h2.BcktPrdNm_")
+                product_data['title'] = name_elem.text.strip()
+
+                # Product price
+                price_elem = product_elem.find_element(By.CSS_SELECTOR, "span.Prdvsprc_")
+                product_data['price'] = price_elem.text.strip()
+
+                # Product offers
+                try:
+                    offer_elem = product_elem.find_element(By.CSS_SELECTOR, "div.BcktPrdemi.h54")
+                    product_data['offers'] = offer_elem.text.strip()
+                except Exception as e:
+                    product_data['offers'] = 'No offers available'
+
+                # Product discount
+                try:
+                    discount_elem = product_elem.find_element(By.CSS_SELECTOR, "span.ofrnm_")
+                    product_data['discount'] = discount_elem.text.strip()
+                except Exception as e:
+                    product_data['discount'] = 'No discount available'
+
+                # Product URL
+                link_elem = product_elem.find_element(By.CSS_SELECTOR, "a[href]")
+                product_data['url'] = link_elem.get_attribute('href')
+
+                products.append(product_data)  # Add product data to the list
+            except Exception as e:
+                logging.error(f"Error scraping a product: {e}")
+                continue
+        print(products)
+        # If no products are found, return None
+        if not products:
+            return None
+
+        # Return all scraped products
+        return products
+
+    except Exception as e:
+        logging.error(f"Error scraping Vijay Sales: {e}")
+        return None
+    finally:
+        driver.quit()
+
+# Example usage with search query and product data
+product_list = search_vijaysales("oneplus 12r 8gb 128gb iron grey")
+if product_list:
+    best_product = find_best_match_tfidf(product_list, "oneplus 12r 8gb 128gb iron grey")
+    print("Best Match:", best_product)
+else:
+    print("No products found from Vijay Sales.")
+
+
+
+#Scaping from Croma
+# Scraping from Croma
+def search_croma(product_name):
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+
+    service = Service("C:/Users/Rajan/OneDrive/Desktop/Likenings Project/chromedriver.exe")
+    driver = webdriver.Chrome(service=service, options=chrome_options)
+
+    url = f"https://www.croma.com/searchB?q={product_name}"
+    driver.get(url)
+    time.sleep(5)  # Let the page load
+
+    products = []  # To store all product data
+
+    try:
+        # Scrape the top 10-15 products
+        product_elems = driver.find_elements(By.CSS_SELECTOR, "div.plp-product-grid div.plp-card")[:15]
+
+        for product_elem in product_elems:
+            product_data = {}
+            try:
+                # Extract product title
+                title_elem = product_elem.find_element(By.CSS_SELECTOR, "h3.product-title.plp-prod-title a")
+                product_data['title'] = title_elem.text.strip()
+
+                # Extract product URL
+                product_data['url'] = title_elem.get_attribute('href')
+
+                # Extract product price
+                price_elem = product_elem.find_element(By.CSS_SELECTOR, "span.amount.plp-srp-new-amount")
+                product_data['price'] = price_elem.text.strip()
+
+                # Discount and offers (if available)
+                try:
+                    discount_elem = product_elem.find_element(By.CSS_SELECTOR, "span.dicount-value")
+                    product_data['discount'] = discount_elem.text.strip()
+                except Exception as e:
+                    product_data['discount'] = 'No discount available'
+
+                try:
+                    saveprice_elem = product_elem.find_element(By.CSS_SELECTOR, "span.discount.discount-mob-plp.discount-newsearch-plp")
+                    product_data['save_price'] = saveprice_elem.text.strip()
+                except Exception as e:
+                    product_data['save_price'] = 'No save price available'
+
+                # Ratings (if available)
+                try:
+                    ratings_elem = product_elem.find_element(By.CSS_SELECTOR, "span.rating-text-icon")
+                    product_data['ratings'] = ratings_elem.text.strip()
+                except Exception as e:
+                    product_data['ratings'] = 'No ratings available'
+
+                products.append(product_data)  # Add to the list of products
+            except Exception as e:
+                logging.error(f"Error scraping a product: {e}")
+                continue
+        print(products)
+        # If no products found, return None
+        if not products:
+            return None
+
+        # Return the scraped product data
+        return products
+
+    except Exception as e:
+        logging.error(f"Error scraping Croma: {e}")
+        return None
+    finally:
+        driver.quit()
+
+# Example usage with search query and product data
+product_list = search_croma("Apple iphone 13 128GB Midnight")
+if product_list:
+    best_product = find_best_match_tfidf(product_list, "Apple iphone 13 128GB Midnight")
+    print("Best Match:", best_product)

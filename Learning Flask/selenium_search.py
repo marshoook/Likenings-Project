@@ -191,12 +191,20 @@ def search_amazon(query):
     }
 
 
+def get_element_text(driver, by, selector, default=""):
+    try:
+        return driver.find_element(by, selector).text.strip()
+    except:
+        return default
+
 def search_croma(query):
+    # Chrome options setup
     chrome_options = Options()
     chrome_options.add_argument("--headless")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
 
+    # Set up Chrome driver service
     service = Service("C:/Users/Rajan/OneDrive/Desktop/Likenings Project/chromedriver.exe")
     driver = webdriver.Chrome(service=service, options=chrome_options)
 
@@ -204,17 +212,34 @@ def search_croma(query):
     driver.get(url)
 
     try:
+        # Wait for the product title to be available before scraping
+        WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, "h3.product-title.plp-prod-title a"))
+        )
+
+        # Scraping title
         name = get_element_text(driver, By.CSS_SELECTOR, "h3.product-title.plp-prod-title a", "Name not found")
+
+        # Scraping price
         price = get_element_text(driver, By.CSS_SELECTOR, "span.amount.plp-srp-new-amount", "Price not found")
-        saveprice = get_element_text(driver, By.CSS_SELECTOR, "span.dicount-value", "SavePrice not found")
-        discount = get_element_text(driver, By.CSS_SELECTOR, "span.discount.discount-mob-plp.discount-newsearch-plp", "Discount not found")
-        ratings = get_element_text(driver, By.CSS_SELECTOR, "span.rating-text-icon", "Ratings not found")
+
+        # Scraping save price
+        saveprice_lines = driver.find_elements(By.CSS_SELECTOR, "span.dicount-value")
+        saveprice = ' '.join([line.text.strip() for line in saveprice_lines]) if saveprice_lines else "SavePrice not found"
+
+        # Scraping discount
+        discount_lines = driver.find_elements(By.CSS_SELECTOR, "span.discount.discount-mob-plp.discount-newsearch-plp")
+        discount = ' '.join([line.text.strip() for line in discount_lines]) if discount_lines else "Discount not found"
+
+        # Scraping ratings
+        ratings = get_element_text(driver, By.CSS_SELECTOR, "span.rating-text", "Ratings not found")
 
         # Extract product URL
         link_elem = driver.find_element(By.CSS_SELECTOR, "h3.product-title.plp-prod-title a")
         href = link_elem.get_attribute('href')
         link = href if href.startswith("http") else f"https://www.croma.com{href}"
-        
+
+        # Return scraped data as a dictionary
         return {
             'platform': 'Croma',
             'name': name,
@@ -224,18 +249,13 @@ def search_croma(query):
             'ratings': ratings,
             'url': link
         }
+
     except Exception as e:
         logging.error(f"Error scraping Croma: {e}")
         return None
+
     finally:
         driver.quit()
-
-def get_element_text(driver, by, value, default):
-    try:
-        element = WebDriverWait(driver, 10).until(EC.presence_of_element_located((by, value)))
-        return element.text.strip()
-    except:
-        return default
 
 
 def search_flipkart(query):
@@ -389,6 +409,4 @@ def all_results():
                 print(f"{key.capitalize()}: {value}")
         else:
             print("No data found or an error occurred.")
-
-
 
